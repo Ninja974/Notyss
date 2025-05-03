@@ -1,6 +1,4 @@
-
 local mapScripts = {
-
     [11468075017] = "https://raw.githubusercontent.com/Ninja974/Notyss/refs/heads/main/Dungeon",  -- Ouwighara
     [13883059853] = "https://raw.githubusercontent.com/Ninja974/Notyss/refs/heads/main/Map%202%20Priv",  -- Map 2 Private
     [17387482786] = "https://raw.githubusercontent.com/Ninja974/Notyss/refs/heads/main/Map%202%20Public"   -- Map 2 Public
