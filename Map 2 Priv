@@ -258,11 +258,12 @@ Tabs["Auto Farm"]:AddSlider("sTweenSpeed", {
     Callback = function(Value)
     end
 })
+
 Tabs["Auto Farm"]:AddSlider("sBossDistance", {
     Title = "Distance",
     Description = "Distance from the boss",
     Default = 13,
-    Min = 5,
+    Min = 1,
     Max = 50,
     Rounding = 0,
     Callback = function(Value)
@@ -279,53 +280,55 @@ Tabs["Auto Farm"]:AddDropdown("dFarmPosition", {
         getgenv().FarmPosition = Value  -- guardamos en una variable global para usar después
     end
 })
-
-
 Tabs["Auto Farm"]:AddToggle("tAutoBoss", {
-	Title = "Auto Boss",
-	Default = false,
-	Callback = function(Value)
+    Title = "Auto Boss",
+    Default = false,
+    Callback = function(Value)
         if Value then
-            options["tAutoFlower"]:SetValue(false)
+            if options["tAutoFlower"] then
+                options["tAutoFlower"]:SetValue(false)
+            end
             task.spawn(function()
                 local _conn = RunService.Stepped:Connect(noclip)
                 local antifall = Instance.new("BodyVelocity")
                 antifall.Velocity = Vector3.new(0, 0, 0)
                 antifall.Parent = client.Character.HumanoidRootPart
+
                 while options.tAutoBoss.Value do
                     for boss, coord in bosses do
-                        if options.tAutoBoss.Value then
-                            --smartTp(coord + Vector3.new(0, 3, 0))
-                            tweento(CFrame.new(coord) * CFrame.new(0, 3, 0)).Completed:Wait()
-                            local boboss = findBoss(boss, true)
-                            if boboss ~= nil and options.tAutoBoss.Value then
-                                while boboss:FindFirstChild("Humanoid").Health > 0 and options.tAutoBoss.Value do
-                                  local offset
-if FarmPosition == "Above" then
-    offset = CFrame.new(0, distance, 0)
-elseif FarmPosition == "Behind" then
-    offset = CFrame.new(0, 0, -distance)
-elseif FarmPosition == "Below" then
-    offset = CFrame.new(0, -distance, 0)
-else
-    offset = CFrame.new(0, distance, 0)  -- default
-end
+                        if not options.tAutoBoss.Value then break end
 
-tpto(boboss.HumanoidRootPart.CFrame * offset * CFrame.Angles(math.rad(-90), 0, 0))
+                        tweento(CFrame.new(coord) * CFrame.new(0, 3, 0)).Completed:Wait()
+                        local boboss = findBoss(boss, true)
 
-                                    task.wait()
+                        if boboss and boboss:FindFirstChild("Humanoid") and options.tAutoBoss.Value then
+                            while boboss.Humanoid.Health > 0 and options.tAutoBoss.Value do
+                                local offset
+                                if FarmPosition == "Above" then
+                                    offset = CFrame.new(0, distance, 0)
+                                elseif FarmPosition == "Behind" then
+                                    offset = CFrame.new(0, 0, -distance)
+                                elseif FarmPosition == "Below" then
+                                    offset = CFrame.new(0, -distance, 0)
+                                else
+                                    offset = CFrame.new(0, distance, 0) -- default
                                 end
+
+                                tpto(boboss.HumanoidRootPart.CFrame * offset * CFrame.Angles(math.rad(-90), 0, 0))
+                                task.wait(0.1)
                             end
                         end
                     end
                     task.wait()
                 end
+
                 _conn:Disconnect()
                 antifall:Destroy()
             end)
         end
-	end    
+    end
 })
+
 
 Tabs["Auto Farm"]:AddToggle("tAutoDummy", {
     Title = "Auto Dummy (Need to be close to dummy)",
@@ -907,6 +910,31 @@ Tabs["Buffs"]:AddToggle("tWarDrum", {
     end
 })
 options["tWarDrum"]:SetValue(true)
+
+Tabs["Buffs"]:AddToggle("theartabl", {
+    Title = "Heart Ablaze (Only Human)",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(true)
+        else
+            game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(false)
+        end
+    end
+})
+
+
+Tabs["Buffs"]:AddToggle("tgodspeed", {
+	Title = "GodSpeed (Only Human)",
+	Default = false,
+	Callback = function(Value)
+	    if Value then
+	       game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(true)
+        else
+            game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(false)
+        end
+    end
+    })
 
 Tabs["Buffs"]:AddToggle("tSunImm", {
     Title = "Sun Immunity",
