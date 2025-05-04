@@ -298,20 +298,6 @@ Tabs["Kill Auras"]:AddToggle("tArrowKA", {
 })
 
 
--- Add slider to control delay
-Tabs["Kill Auras"]:AddSlider("sPiercingArrowDelay", {
-    Title = "Piercing Arrow Delay (seconds)",
-    Description = "Adjust the delay between each attack",
-    Default = 0.2,
-    Min = 0.05,
-    Max = 2,
-    Rounding = 2,
-    Callback = function(Value)
-        -- You can add a print if you want to debug:
-        -- print("Piercing Arrow Delay set to: " .. Value)
-    end
-})
-
 Tabs["Kill Auras"]:AddToggle("tPiercingArrow", {
     Title = 'Bring Mobs',
     Default = false,
@@ -321,8 +307,7 @@ Tabs["Kill Auras"]:AddToggle("tPiercingArrow", {
                 while options.tPiercingArrow.Value do 
                     local target = findMob(true)
                     if target then
-                        repeat 
-                            task.wait(options["sPiercingArrowDelay"].Value)
+                        repeat task.wait()
                             local args = {
                                 [1] = "piercing_arrow_damage",
                                 [2] = client,
@@ -350,7 +335,6 @@ Tabs["Kill Auras"]:AddToggle("tPiercingArrow", {
         end
     end
 })
-
 -- BUFFS
 
 local skillMod = require(game:GetService("ReplicatedStorage").Modules.Server.Skills_Modules_Handler).Skills
