@@ -222,6 +222,7 @@ end
 local Tabs = {
     ["Auto Farm"] = Window:AddTab({Title = "Auto Farm", Icon = ""});
     ["Kill Auras"] = Window:AddTab({Title = "Kill Auras", Icon = ""});
+    ["Player Farm"] = Window:AddTab({Title = "Player Farm", Icon = ""});
     ["Misc"] = Window:AddTab({Title = "Misc", Icon = ""});
     ["Buffs"] = Window:AddTab({Title = "Buffs", Icon = ""});
     ["Webhook Settings"] = Window:AddTab({Title = "Webhook Settings", Icon = ""});
@@ -561,53 +562,7 @@ task.spawn(function()
         task.wait()
     end
 end)
-Tabs["Kill Auras"]:AddToggle("tBringPlayer", {
-    Title = 'Arrow Bring Player',
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            if options["tArrowKA"].Value then
-                Library:Notify({
-                    Title = "Attention",
-                    Content = "You are susceptible to get kicked if you use two different KA",
-                    Duration = 5
-                })
-            end
-            task.spawn(function()
-                while options.tBringPlayer.Value do 
-                    for _, player in pairs(game.Players:GetPlayers()) do
-                        if player ~= client and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                            local args = {
-                                [1] = "piercing_arrow_damage",
-                                [2] = client,
-                                [3] = player.Character:GetModelCFrame()
-                            }
-                            Handle_Initiate_S:FireServer(unpack(args))
-                            task.wait(0.2)
-                        end
-                    end
-                    task.wait()
-                end
-            end)
-        end
-    end
-})
 
-task.spawn(function()
-    while true do
-        if options.tBringPlayer and options.tBringPlayer.Value then
-            local args = {
-                [1] = "skil_ting_asd",
-                [2] = client,
-                [3] = "arrow_knock_back",
-                [4] = 5
-            }
-            Handle_Initiate_S_:InvokeServer(unpack(args))
-            task.wait(6)
-        end
-        task.wait()
-    end
-end)
 
 Tabs["Kill Auras"]:AddToggle("tArrowKADummy", {
     Title = 'Arrow KA (Dummies)',
@@ -758,6 +713,198 @@ Tabs["Kill Auras"]:AddToggle("tAutoM1AllWeapons", {
 })
 
 
+--Player Farm
+
+Tabs["Player Farm"]:AddInput("targetPlayer", {
+    Title = "Target Player Name",
+    Default = "",
+    Placeholder = "Enter player name...",
+    Callback = function(Value)
+        targetPlayerName = Value
+    end
+})
+
+Tabs["Player Farm"]:AddToggle("tSinglePlayerKA", {
+    Title = 'Arrow Bring Specific Player',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if options["tArrowKA"].Value then
+                Library:Notify({
+                    Title = "Attention",
+                    Content = "You are susceptible to get kicked if you use two different KA",
+                    Duration = 5
+                })
+            end
+
+            task.spawn(function()
+                while options.tSinglePlayerKA.Value do 
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        if player ~= client 
+                        and player.Name:lower() == targetPlayerName:lower()
+                        and player.Character
+                        and player.Character:FindFirstChild("HumanoidRootPart") then
+
+                            local args = {
+                                [1] = "piercing_arrow_damage",
+                                [2] = client,
+                                [3] = player.Character:GetModelCFrame()
+                            }
+                            Handle_Initiate_S:FireServer(unpack(args))
+                            task.wait(0.2)
+                        end
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+task.spawn(function()
+    while true do
+        if options.tSinglePlayerKA and options.tSinglePlayerKA.Value then
+            local args = {
+                [1] = "skil_ting_asd",
+                [2] = client,
+                [3] = "arrow_knock_back",
+                [4] = 5
+            }
+            Handle_Initiate_S_:InvokeServer(unpack(args))
+            task.wait(6)
+        end
+        task.wait()
+    end
+end)
+
+
+local targetPlayerList = {}
+
+Tabs["Player Farm"]:AddInput("targetPlayers", {
+    Title = "Target Player Names (comma separated)",
+    Default = "",
+    Placeholder = "Someone,Someone,Someone",
+    Callback = function(Value)
+        -- fuerza que sea tabla
+        targetPlayerList = {}
+        if type(targetPlayerList) ~= "table" then
+            targetPlayerList = {}
+        end
+
+        for name in string.gmatch(Value, '([^,]+)') do
+            local cleanName = name:lower():gsub("^%s*(.-)%s*$", "%1") -- limpia espacios
+            table.insert(targetPlayerList, cleanName)
+        end
+    end
+})
+
+Tabs["Player Farm"]:AddToggle("tMultiPlayerKA", {
+    Title = 'Arrow Bring Selected Players',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if options["tArrowKA"].Value then
+                Library:Notify({
+                    Title = "Attention",
+                    Content = "You are susceptible to get kicked if you use two different KA",
+                    Duration = 5
+                })
+            end
+        end
+    end
+})  -- <-- ¡ESTE cierre!
+
+
+task.spawn(function()
+    while options.tMultiPlayerKA.Value do 
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= client and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local isTarget = false
+                for _, targetName in pairs(targetPlayerList) do
+                    if player.Name:lower() == targetName then
+                        isTarget = true
+                        break
+                    end
+                end
+
+                if isTarget then
+                    local args = {
+                        [1] = "piercing_arrow_damage",
+                        [2] = client,
+                        [3] = player.Character:GetModelCFrame()
+                    }
+                    Handle_Initiate_S:FireServer(unpack(args))
+                    task.wait(0.2)
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+Tabs["Player Farm"]:AddToggle("tBringPlayer", {
+    Title = 'Arrow Bring All Players',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if options["tArrowKA"].Value then
+                Library:Notify({
+                    Title = "Attention",
+                    Content = "You are susceptible to get kicked if you use two different KA",
+                    Duration = 5
+                })
+            end
+            task.spawn(function()
+                while options.tBringPlayer.Value do 
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        if player ~= client and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            local args = {
+                                [1] = "piercing_arrow_damage",
+                                [2] = client,
+                                [3] = player.Character:GetModelCFrame()
+                            }
+                            Handle_Initiate_S:FireServer(unpack(args))
+                            task.wait(0.2)
+                        end
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+task.spawn(function()
+    while true do
+        if options.tBringPlayer and options.tBringPlayer.Value then
+            local args = {
+                [1] = "skil_ting_asd",
+                [2] = client,
+                [3] = "arrow_knock_back",
+                [4] = 5
+            }
+            Handle_Initiate_S_:InvokeServer(unpack(args))
+            task.wait(6)
+        end
+        task.wait()
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if options.tMultiPlayerKA and options.tMultiPlayerKA.Value then
+            local args = {
+                [1] = "skil_ting_asd",
+                [2] = client,
+                [3] = "arrow_knock_back",
+                [4] = 5
+            }
+            Handle_Initiate_S_:InvokeServer(unpack(args))
+            task.wait(6)
+        end
+        task.wait()
+    end
+end)
 
 
 
