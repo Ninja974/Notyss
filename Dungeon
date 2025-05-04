@@ -109,7 +109,7 @@ if UserInputService.TouchEnabled then
     end)
 else
     Window = Library:CreateWindow{
-        Title = `Cloudhub | Project Slayer`,
+        Title = `FireHub | Project Slayer`,
         TabWidth = 160,
         Size = UDim2.fromOffset(830, 525),
         Resize = true, -- Resize this ^ Size according to a 1920x1080 screen, good for mobile users but may look weird on some devices
@@ -245,6 +245,18 @@ Tabs["Auto Farm"]:AddToggle("tAutoChest", {
 })
 
 -- KILL AURAS
+-- Slider for the second loop (default 0.2 seconds)
+Tabs["Kill Auras"]:AddSlider("sArrowKADelay2", {
+    Title = "Arrow KA Damage Delay (seconds)",
+    Description = "Delay between arrow_knock_back_damage",
+    Default = 0.2,
+    Min = 0.05,
+    Max = 2,
+    Rounding = 2,
+    Callback = function(Value)
+    end
+})
+
 Tabs["Kill Auras"]:AddToggle("tArrowKA", {
     Title = 'Arrow KA',
     Default = false,
@@ -278,10 +290,25 @@ Tabs["Kill Auras"]:AddToggle("tArrowKA", {
 
                         game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(unpack(args))
                     end
-                    task.wait(0.2)
+                    task.wait(options["sArrowKADelay2"].Value)
                 end
             end)
         end
+    end
+})
+
+
+-- Add slider to control delay
+Tabs["Kill Auras"]:AddSlider("sPiercingArrowDelay", {
+    Title = "Piercing Arrow Delay (seconds)",
+    Description = "Adjust the delay between each attack",
+    Default = 0.2,
+    Min = 0.05,
+    Max = 2,
+    Rounding = 2,
+    Callback = function(Value)
+        -- You can add a print if you want to debug:
+        -- print("Piercing Arrow Delay set to: " .. Value)
     end
 })
 
@@ -294,7 +321,8 @@ Tabs["Kill Auras"]:AddToggle("tPiercingArrow", {
                 while options.tPiercingArrow.Value do 
                     local target = findMob(true)
                     if target then
-                        repeat task.wait()
+                        repeat 
+                            task.wait(options["sPiercingArrowDelay"].Value)
                             local args = {
                                 [1] = "piercing_arrow_damage",
                                 [2] = client,
@@ -410,29 +438,30 @@ Tabs["Buffs"]:AddToggle("tSunImm", {
     end
 })
 
-Tabs["Buffs"]:AddToggle("tInfStam", {
-    Title = "Infinite Stamina",
-    Default = true,
+Tabs["Buffs"]:AddToggle("theartabl", {
+    Title = "Heart Ablaze (Only Human)",
+    Default = false,
     Callback = function(Value)
         if Value then
-            playerValues.Stamina.MinValue = 9999
+            game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(true)
         else
-            playerValues.Stamina.MinValue = 0
+            game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(false)
         end
     end
 })
 
-Tabs["Buffs"]:AddToggle("tInfBreath", {
-    Title = "tInfBreath",
-    Default = true,
-    Callback = function(Value)
-        if Value then
-            playerValues.Breath.MinValue = 9999
+
+Tabs["Buffs"]:AddToggle("tgodspeed", {
+	Title = "GodSpeed (Only Human)",
+	Default = false,
+	Callback = function(Value)
+	    if Value then
+	       game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(true)
         else
-            playerValues.Breath.MinValue = 0
+            game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(false)
         end
     end
-})
+    })
 
 SaveManager:SetLibrary(Library)
 SaveManager:SetFolder("CloudHub/babouche")
