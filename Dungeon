@@ -154,7 +154,7 @@ Tabs["Auto Farm"]:AddDropdown("dWeaponSelect", {
 Tabs["Auto Farm"]:AddSlider("sTweenSpeed", {
     Title = "TweenSpeed",
     Description = "This is a slider",
-    Default = 400,
+    Default = 420,
     Min = 100,
     Max = 500,
     Rounding = 0,
@@ -254,6 +254,18 @@ Tabs["Kill Auras"]:AddSlider("sArrowKADelay2", {
     Max = 2,
     Rounding = 2,
     Callback = function(Value)
+    end
+})
+Tabs["Kill Auras"]:AddButton("bSetDelay036", {
+    Title = "Set Delay to 0.36",
+    Description = "Quick set delay to 0.36 seconds",
+    Callback = function()
+        options["sArrowKADelay2"]:SetValue(0.36)
+        Library:Notify({
+            Title = "Delay Updated",
+            Content = "Arrow KA Damage Delay set to 0.36 seconds",
+            Duration = 3
+        })
     end
 })
 
